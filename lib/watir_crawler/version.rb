@@ -1,0 +1,3 @@
+module WatirCrawler
+  VERSION = "0.0.1"
+end
