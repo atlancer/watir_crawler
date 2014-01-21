@@ -1,6 +1,6 @@
 # WatirCrawler
 
-TODO: Write a gem description
+A watir based web crawler
 
 ## Installation
 
@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+See examples
 
 ## Contributing
 
