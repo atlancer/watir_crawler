@@ -21,12 +21,6 @@ class CrawlerExample < WatirCrawler::Base
     end
   end
 
-  def goto_login
-    browser_session do
-      goto 'https://myaccount.alagasco.com/ccsuces/public/frameset_top_html.jsp'
-    end
-  end
-
   def google_news
     browser_session do
       goto 'http://news.google.com/'
