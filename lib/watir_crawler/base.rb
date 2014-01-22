@@ -83,9 +83,8 @@ module WatirCrawler
       browser.execute_script(script)
     end
 
-  #  #####################################################################################################
-
     # --------------------------------------------------------------------------------------------------------------------
+
     def pull *args, &block
       opts, xpaths = args.flatten.partition{|a| a.is_a?(Symbol) }
       opt_mode  =   opts.delete(:exist?) ||  opts.delete(:present?) || :present? # default is :present?
@@ -98,11 +97,19 @@ module WatirCrawler
         nodes_for(xpath) # get all elements
       end.flatten.select do |node|
         node.send(opt_mode) # select elements by mode
+      end.map do |node|
+        subtype = node.to_subtype
+        class << subtype
+          attr_accessor :node_xpath
+        end
+
+        subtype.node_xpath = node.node_xpath
+        subtype
       end
 
       # flash result nodes
       elements = elements.take(1) if opt_first
-      elements.each{|node| node.flash unless node.is_a?(Watir::Frame) }
+      elements.each{|node| node.flash unless node.is_a?(Watir::Frame) || node.is_a?(Watir::IFrame) }
 
       first_element = elements.first
 
@@ -111,11 +118,7 @@ module WatirCrawler
         nodes_path << first_element.node_xpath
         yield
       else
-        if opt_first
-          first_element && first_element.to_subtype
-        else
-          elements.map{|element| element.to_subtype }
-        end
+        opt_first ? first_element : elements
       end
     rescue Selenium::WebDriver::Error::StaleElementReferenceError,
            Selenium::WebDriver::Error::ObsoleteElementError
@@ -186,12 +189,15 @@ module WatirCrawler
       elements = elements.to_a if elements.is_a? Watir::ElementCollection
       elements = [elements].flatten
 
+      has_multiple_elements = elements.size > 1
+
       elements.map.with_index do |element, index|
         class << element
           attr_accessor :node_xpath
         end
 
-        element.node_xpath = xpath + "[#{index + 1}]"
+        element.node_xpath = xpath
+        element.node_xpath += "[#{index + 1}]" if has_multiple_elements
         element
       end
     end
